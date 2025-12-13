@@ -52,7 +52,7 @@ class Cell:
         self.state = False
 
     def __str__(self):
-        return '#' if self.state else '.'
+        return f'({self.x}, {self.y})'
     
     def __repr__(self):
         return f"Cell({self.x}, {self.y}, state={'Wall' if self.state else 'Free'}, visited={self.visited}, current={self.current}, origin={self.origin}, finish={self.finish})"

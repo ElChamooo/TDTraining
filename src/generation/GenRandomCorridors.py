@@ -30,7 +30,8 @@ class GenRandomCorridors(GenRandom):
             i=self.get_random_lenght_corridor()
 
     #-------------------------------------Corridor Loop-------------------------------------#
-
+            
+            print(f'[DEBUG]: Lenght max of the next corridor: {i}')
             for iter in range(2, i): 
 
         #-------------------------------------Cell Loop-------------------------------------#   
@@ -39,60 +40,69 @@ class GenRandomCorridors(GenRandom):
                     end_corridor = True 
         
         #-------------------------------------1.1 Verification-------------------------------------#
-                # TODO - Add the corners to avoid shadow looping
+                
                 current_cell = self.get_cell_current()
-                print(f'Current Cell: {repr(current_cell)}')
-                current_direction = self.get_direction()
+
+                if current_cell.is_finish():
+                    self.put_wall_back()
+                    self.put_wall_onsides()
+                    self.put_wall_infront()
+                    self.del_split_node()
+
+
+                print(f'Current Cell: {current_cell}')
                 cells = {
                     "front": {
                         "cell": self.get_cell_front(current_cell),
                         "neighboor": self.get_cell_front(current_cell,howfar=2),
+                        "wife":self.get_cell_right(self.get_cell_front(current_cell)),
                         # "state_cell": None,  # good_path, not_path, loop_path
                         # "state_neighboor": None,
+                        # "state_wife: None",
+                        "is_adj_wife_visited": False,
                         # "state_path": None,
                         "relative_direction": 0
                     },
                     "right": {
                         "cell": self.get_cell_right(current_cell),
                         "neighboor": self.get_cell_right(current_cell,howfar=2),
+                        "wife":self.get_cell_back(self.get_cell_right(current_cell)),
                         # "state_cell": None,
                         # "state_neighboor": None,
+                        # "state_wife: None",
+                        "is_adj_wife_visited": False,
                         # "state_path": None,
                         "relative_direction": 1
-                    },
-                    "left": {
-                        "cell": self.get_cell_left(current_cell),
-                        "neighboor": self.get_cell_left(current_cell,howfar=2),
-                        # "state_cell": None,
-                        # "state_neighboor": None
-                        # "state_path": None,
-                        "relative_direction": 3
                     },
                     "back": {
                         "cell": self.get_cell_back(current_cell),
                         "neighboor": self.get_cell_back(current_cell,howfar=2),
+                        "wife":self.get_cell_left(self.get_cell_back(current_cell)),
                         # "state_cell": None,
-                        # "state_neighboor": None
+                        # "state_neighboor": None,
+                        # "state_wife: None",
+                        "is_adj_wife_visited": False,
                         # "state_path": None,
                         "relative_direction": 2
                     },
+                    "left": {
+                        "cell": self.get_cell_left(current_cell),
+                        "neighboor": self.get_cell_left(current_cell,howfar=2),
+                        "wife":self.get_cell_front(self.get_cell_left(current_cell)),
+                        # "state_cell": None,
+                        # "state_neighboor": None,
+                        # "state_wife: None",
+                        "is_adj_wife_visited": False,
+                        # "state_path": None,
+                        "relative_direction": 3
+                    },
                     "free_neightboor": 0
                 }
-                
-                for key, value in cells.items():
-                    if not isinstance(value, dict):
-                        continue  # ignore les ints
-                    value["state_cell"]=self.state_to_str(value["cell"])
-                    value["state_neighboor"]=self.state_to_str(value["neighboor"])
-                    if value["state_cell"] == "wall" or value["state_cell"] == "visited":
-                        value["state_path"]="unvalid"
-                    elif value["state_cell"] == "free" and (value["state_neighboor"] == "free" or value["state_neighboor"] == "wall"):
-                        value["state_path"]="valid"
-                        cells["free_neightboor"]+=1
-                    elif value["state_cell"] == "free" and value["state_neighboor"] == "visited":
-                        value["state_path"]="looping"
-                    else:
-                        raise ValueError("The state of a path cannot be undefined")
+
+                cells = self.update_cells_states(cells)
+                cells = self.update_is_adj_wife_visited(cells)
+                cells = self.update_state_path(cells)
+
 
         #-------------------------------------1.2 Print Verification-------------------------------------#
                 
@@ -102,7 +112,7 @@ class GenRandomCorridors(GenRandom):
                     print(key)
                     for cle,truc in value.items():
                         print(f'{cle}: {repr(truc)}')
-                    print(f'Free neighboors: {cells["free_neightboor"]}')
+                print(f'Free neighboors: {cells["free_neightboor"]}')
 
                         
                 
@@ -122,68 +132,119 @@ class GenRandomCorridors(GenRandom):
                                 self.put_wall_left()
                             case "back":
                                 self.put_wall_back()
-
-
-                action=""
-                yield action  # --- C'est ici que ton step est renvoyé à pygame ---
-
                     
 
         #-------------------------------------2.2 Deciding next move-------------------------------------#
                 
-                next_move = {
-                    # "turn":0,
-                    # "forward":False
-                }
-                back_next_split=False
+                del_node=(cells["free_neightboor"]==0)
+                add_node=(cells["free_neightboor"]in [2,3,4]) and end_corridor
+                forward=(cells["free_neightboor"]!=0)
+                print(f'[DEBUG]: End of a corridor: {end_corridor}')
+                turn=self.update_turn(end_corridor, cells)
 
-                if not end_corridor and cells["front"]["state_path"]=="valid": 
-                    if cells["free_neightboor"] == 0:
-                        # If deadend, to delete from split list
-                        self.del_split_node(current_cell)
-                        back_next_split=True                  
-                    #forward without turning
-                    print("valid")
-                    next_move["turn"]=0
-                    next_move["forward"]=True 
-                elif end_corridor or cells["front"]["state_path"]=="unvalid" or cells["front"]["state_path"]=="looping":
+                print(f'[DEBUG]: Next move: {"no" if not forward else f"turn {turn}"}')
+
+        #-------------------------------------3.1 Updating the split nodes-------------------------------------#
+                
+                if del_node:
+                    self.del_split_node()
+                if add_node:
+                    self.add_split_node()
+
+                print(f'[DEBUG]: List of split node: {", ".join(map(str, self.split_nodes))}')
+
+        #-------------------------------------3.2 Placing walls if necessary-------------------------------------#
+
+                if not end_corridor and turn==0 and forward:
+                    self.put_wall_onsides()
+                            
+        #-------------------------------------3.3 Changing to next position-------------------------------------#
+
+                if del_node and not self.split_nodes_empty():
+                    last_split=self.get_last_split_node()
+                    self.set_current(last_split.x, last_split.y)
+                    action="Going to last split node: "+repr(self.get_cell_current())
+                elif forward:
+                    self.turn(turn)
+                    self.forward()
+                    action="Moving to: "+repr(self.get_cell_current())
+
+                yield action  # --- C'est ici que ton step est renvoyé à pygame ---
+                
+        #-------------------------------------3.4 Ending corridors if turns-------------------------------------#
+
+                if del_node or not forward or not self.is_current_in_split_node():
                     end_corridor=True
-                    if cells["free_neightboor"] == 0:
-                        # If deadend, to delete from split list
-                        self.del_split_node(current_cell)
-                        back_next_split=True
-                    else:
-                        next_move["turn"] = self.choose_random_direction()
-                        next_move["forward"]=True 
-                    if cells["free_neightboor"] == 2:
-                        # Check if avaiable for split
-                        self.add_split_node(current_cell)
+
+        #-------------------------------------3.5 Checking if maze finished-------------------------------------#
+
+
+                if self.is_fully_generated():
+                    print(f'[DEBUG]: Maze generation finished')
+                    finished = True
+                    end_corridor = True
 
             
-        #-------------------------------------3.1 Update position-------------------------------------#
-                
-                if not end_corridor and cells["front"]["state_path"]=="valid":
-                    self.put_wall_onsides(current_cell)
-                if back_next_split:
-                    next_cell=self.get_last_split_node()
-                    self.set_current(next_cell.x,next_cell.y)
-                    end_corridor=True
-                else:
-                    match next_move["turn"]:
-                        case 0:
-                            pass
-                        case 1:
-                            self.turn_right()
-                        case 2:
-                            self.turn_back()
-                        case 3:
-                            self.turn_left()
-                    if next_move["forward"]:
-                        self.forward()
+
+
+                    
+
 
 
                 if end_corridor:
                     break
+        
+
+        
+#-------------------------------------4.1 Polishing the maze after generating-------------------------------------#
+
+        self.maze.polishing_maze_wall()
+
+                # if not end_corridor and cells["front"]["state_path"]=="valid": 
+                #     if cells["free_neightboor"] == 0:
+                #         # If deadend, to delete from split list
+                #         self.del_split_node(current_cell)
+                #         back_next_split=True                  
+                #     #forward without turning
+                #     print("valid")
+                #     next_move["turn"]=0
+                #     next_move["forward"]=True 
+                # elif end_corridor or cells["front"]["state_path"]=="unvalid" or cells["front"]["state_path"]=="looping":
+                #     end_corridor=True
+                #     if cells["free_neightboor"] == 0:
+                #         # If deadend, to delete from split list
+                #         self.del_split_node(current_cell)
+                #         back_next_split=True
+                #     else:
+                #         next_move["turn"] = self.choose_random_direction()
+                #         next_move["forward"]=True 
+                #     if cells["free_neightboor"] == 2:
+                #         # Check if avaiable for split
+                #         self.add_split_node(current_cell)
+
+            
+        #-------------------------------------3.1 Update position-------------------------------------#
+                
+                # if not end_corridor and cells["front"]["state_path"]=="valid":
+                #     self.put_wall_onsides(current_cell)
+                # if back_next_split:
+                #     next_cell=self.get_last_split_node()
+                #     self.set_current(next_cell.x,next_cell.y)
+                #     end_corridor=True
+                # else:
+                #     match next_move["turn"]:
+                #         case 0:
+                #             pass
+                #         case 1:
+                #             self.turn_right()
+                #         case 2:
+                #             self.turn_back()
+                #         case 3:
+                #             self.turn_left()
+                #     if next_move["forward"]:
+                #         self.forward()
+
+
 
                 
                         
@@ -351,8 +412,6 @@ class GenRandomCorridors(GenRandom):
 
 
 
-# #             if self.is_fully_generated():
-# #                 finished = True
 # #             self.turn_right()
 # # Il faut que je flag les cases sur lequel on est déja passé pour pas les transfromer en murs et fasse la fonctionalité de split               
 

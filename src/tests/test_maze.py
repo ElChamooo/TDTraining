@@ -75,9 +75,9 @@ class TestMaze:
             maze.set_free(4, 0)  # Boundary cell
         with pytest.raises(ValueError):
             maze.set_free(0, 8)  # Boundary cell
-        with pytest.raises(IndexError):
+        with pytest.raises(ValueError):
             maze.set_wall(10, 2)  # Boundary cell
-        with pytest.raises(IndexError):
+        with pytest.raises(ValueError):
             maze.set_wall(1, -1)  # Boundary cell
 
     def test_is_boundary(self):
@@ -104,13 +104,13 @@ class TestMaze:
         maze.set_current(2, 2)
         maze.set_direction(2)
         # Facing west
-        assert maze.is_forward_valid(maze.get_current()) == True
+        assert maze.is_frontside_valid(maze.get_current()) == True
         assert maze.is_leftside_valid(maze.get_current()) == True
         assert maze.is_rightside_valid(maze.get_current()) == True
         maze.set_wall(1, 2)  # Forward
         maze.set_wall(2, 3)  # Left
         maze.set_visited(2, 1)  # Right
-        assert maze.is_forward_valid(maze.get_current()) == False
+        assert maze.is_frontside_valid(maze.get_current()) == False
         assert maze.is_leftside_valid(maze.get_current()) == False
         assert maze.is_rightside_valid(maze.get_current()) == False
 
@@ -154,14 +154,10 @@ class TestMaze:
 
     def test_maze_boundaries(self):
         maze = Maze(5, 5)
-        with pytest.raises(IndexError):
-            maze.get_cell(-1, 0)
-        with pytest.raises(IndexError):
-            maze.get_cell(0, -1)
-        with pytest.raises(IndexError):
-            maze.get_cell(5, 5)
-        with pytest.raises(IndexError):
-            maze.get_cell(6, 6)
+        assert maze.get_cell(-1, 0)==None
+        assert maze.get_cell(0, -1)==None
+        assert maze.get_cell(5, 5)==None
+        assert maze.get_cell(3, -2)==None
 
     def test_clear_maze(self):
         maze = Maze(5, 5)

@@ -78,35 +78,35 @@ class TestGenRandom:
         maze.set_current(3, 3)
         maze.maze.set_direction(0)  # Facing east
         # Initially all sides are free
-        assert maze.is_infront_valid(maze.get_cell_current()) == True
+        assert maze.is_frontside_valid(maze.get_cell_current()) == True
         # Set wall in front
         maze.maze.set_wall(4, 3)
-        assert maze.is_infront_valid(maze.get_cell_current()) == False
+        assert maze.is_frontside_valid(maze.get_cell_current()) == False
         # Set visited in front
         maze.maze.set_free(4, 3)
         maze.maze.set_visited(4, 3)
-        assert maze.is_infront_valid(maze.get_cell_current()) == False
+        assert maze.is_frontside_valid(maze.get_cell_current()) == False
         maze.maze.set_free(4, 3)
         
         maze.maze.set_direction(3)  # Facing north
         # Initially all sides are free
-        assert maze.is_infront_valid(maze.get_cell_current()) == True
+        assert maze.is_frontside_valid(maze.get_cell_current()) == True
         # Set wall in front
         maze.maze.set_wall(3, 2)
-        assert maze.is_infront_valid(maze.get_cell_current()) == False
+        assert maze.is_frontside_valid(maze.get_cell_current()) == False
         # Set visited in front
         maze.maze.set_free(3, 2)
         maze.maze.set_visited(3, 2)
-        assert maze.is_infront_valid(maze.get_cell_current()) == False
+        assert maze.is_frontside_valid(maze.get_cell_current()) == False
         maze.maze.set_free(3, 2)
 
         maze.set_current(1, 1)
         maze.maze.set_direction(2)  # Facing west
         # Initially in front is boundary
-        assert maze.is_infront_valid(maze.get_cell_current()) == False
+        assert maze.is_frontside_valid(maze.get_cell_current()) == False
         maze.maze.set_direction(1)  # Facing south
         # Initially in front sides are free
-        assert maze.is_infront_valid(maze.get_cell_current()) == True
+        assert maze.is_frontside_valid(maze.get_cell_current()) == True
 
     def test_is_rightside_valid(self):
         maze = GenRandom(Maze(7, 7))

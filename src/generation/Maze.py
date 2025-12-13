@@ -100,6 +100,15 @@ class Maze:
             case 3: # North
                 return self.get_cell(x+howfar,y)
             
+#-------------------------------------Polishing function-------------------------------------#
+    
+    def polishing_maze_wall(self):
+        for raw in self.grid:
+            for cell in raw:
+                x=cell.x; y=cell.y
+                if not self.is_visited(x,y) and not self.is_boundary(x,y) and self.is_free(x,y):
+                    cell.set_wall()
+            
 #-------------------------------------Setter-------------------------------------#
     
     def set_direction(self, direction: int):
@@ -134,8 +143,8 @@ class Maze:
         self.width = width
         
     def set_wall(self, x, y):
-        if self.is_boundary(x, y):
-            raise ValueError("Cannot set boundary cell as wall: ({}, {})".format(x, y))
+        if self.is_boundary(x, y) or self.is_visited(x, y):
+            return
         self.get_cell(x, y).set_wall()
 
     def set_wall_boundary(self, x, y):
@@ -154,6 +163,9 @@ class Maze:
     def is_visited(self, x, y) -> bool:
         return self.get_cell(x, y).is_visited()
     
+    def is_free(self, x, y) -> bool:
+        return self.get_cell(x, y).is_free()
+    
     def is_finish(self, x, y) -> bool:
         return self.get_cell(x, y).is_finish()
     
@@ -165,12 +177,15 @@ class Maze:
 
     def is_boundary(self, x, y) -> bool:
         return x == 0 or y == 0 or x == self.width - 1 or y == self.height - 1
+    
+    def is_out_of_bound(self, x, y) -> bool:
+        return x < 0 or y < 0 or x > self.width - 1 or y > self.height - 1
 
     def is_valid_next_path(self, x, y) -> bool:
         cell = self.get_cell(x, y)
-        return cell.is_free() and not cell.is_visited() and not self.is_boundary(x, y)
+        return cell.is_free() and not cell.is_visited() and not self.is_boundary(x, y) and not self.is_out_of_bound(x, y)
     
-    def is_forward_valid(self, cell) -> bool:
+    def is_frontside_valid(self, cell) -> bool:
         match self.direction:
             case 0:  # east
                 return self.is_valid_next_path(cell.x + 1, cell.y)
@@ -180,19 +195,6 @@ class Maze:
                 return self.is_valid_next_path(cell.x - 1, cell.y)
             case 3:  # north
                 return self.is_valid_next_path(cell.x, cell.y - 1)
-            case _:
-                raise ValueError("Invalid direction: {}".format(self.direction))
-    
-    def is_leftside_valid(self, cell) -> bool:
-        match self.direction:
-            case 0:  # east
-                return self.is_valid_next_path(cell.x, cell.y - 1)
-            case 1:  # south
-                return self.is_valid_next_path(cell.x + 1, cell.y)
-            case 2:  # west
-                return self.is_valid_next_path(cell.x, cell.y + 1)
-            case 3:  # north
-                return self.is_valid_next_path(cell.x - 1, cell.y)
             case _:
                 raise ValueError("Invalid direction: {}".format(self.direction))
             
@@ -206,6 +208,32 @@ class Maze:
                 return self.is_valid_next_path(cell.x, cell.y - 1)
             case 3:  # north
                 return self.is_valid_next_path(cell.x + 1, cell.y)
+            case _:
+                raise ValueError("Invalid direction: {}".format(self.direction))
+            
+    def is_backside_valid(self, cell) -> bool:
+        match self.direction:
+            case 0:  # east
+                return self.is_valid_next_path(cell.x - 1, cell.y)
+            case 1:  # south
+                return self.is_valid_next_path(cell.x, cell.y - 1)
+            case 2:  # west
+                return self.is_valid_next_path(cell.x + 1, cell.y)
+            case 3:  # north
+                return self.is_valid_next_path(cell.x, cell.y + 1)
+            case _:
+                raise ValueError("Invalid direction: {}".format(self.direction))
+    
+    def is_leftside_valid(self, cell) -> bool:
+        match self.direction:
+            case 0:  # east
+                return self.is_valid_next_path(cell.x, cell.y - 1)
+            case 1:  # south
+                return self.is_valid_next_path(cell.x + 1, cell.y)
+            case 2:  # west
+                return self.is_valid_next_path(cell.x, cell.y + 1)
+            case 3:  # north
+                return self.is_valid_next_path(cell.x - 1, cell.y)
             case _:
                 raise ValueError("Invalid direction: {}".format(self.direction))
             

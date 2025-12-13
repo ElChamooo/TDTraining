@@ -23,7 +23,7 @@ def main(debug=False):
 
     # create buttons once
     btns = create_buttons()
-    maze=Maze(41,41)
+    maze=Maze(21,21)
 
     if debug:
         generation = GenRandomCorridors(maze).generate_corridors(debug=True)
