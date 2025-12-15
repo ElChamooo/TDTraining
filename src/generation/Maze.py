@@ -6,7 +6,6 @@ class Maze:
         self.height = height
         self.direction = 0  # 0: east, 1: south, 2: west, 3: north
         self.grid = [[Cell(x, y) for x in range(width)] for y in range(height)]  # Tableau de lignes
-        self.generate_borders()
 
 
 #-------------------------------------Get données membres-------------------------------------#
@@ -108,6 +107,12 @@ class Maze:
                 x=cell.x; y=cell.y
                 if not self.is_visited(x,y) and not self.is_boundary(x,y) and self.is_free(x,y):
                     cell.set_wall()
+
+    def reset_visited(self):
+        for raw in self.grid:
+            for cell in raw:
+                if cell.is_visited():
+                    cell.unset_visited()
             
 #-------------------------------------Setter-------------------------------------#
     
@@ -316,7 +321,8 @@ class Maze:
                 raise ValueError("Invalid direction: {}".format(self.direction))
 
     def clear(self):
-        self.get_current().unset_current()
+        if self.get_current() != None:
+            self.get_current().unset_current()
         if self.get_origin() is not None:
             self.get_origin().origin = False
         if self.get_finish() is not None:

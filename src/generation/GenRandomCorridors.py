@@ -11,14 +11,16 @@ class GenRandomCorridors(GenRandom):
         return random.randint(2, random.randint(2, (self.get_width()-2)//3))
 
     def generate_corridors(self, debug=False):
-
-        
         # Initialize the maze generation
+        self.clear_maze()
+        self.generate_borders()
+        self.set_current(1,1)
         self.set_origin(self.get_cell_current().x, self.get_cell_current().y)
         self.set_finish(self.get_width()-2, self.get_height()-2)
-        print("[DEBUG] Origin set at:", self.get_origin().x, self.get_origin().y)
-        print("[DEBUG] Finish set at:", self.get_finish().x, self.get_finish().y)
-        print("[DEBUG] Current cell at:", self.get_cell_current().x, self.get_cell_current().y," Direction:", self.maze.get_direction())
+        if debug:
+            print("[DEBUG] Origin set at:", self.get_origin().x, self.get_origin().y)
+            print("[DEBUG] Finish set at:", self.get_finish().x, self.get_finish().y)
+            print("[DEBUG] Current cell at:", self.get_cell_current().x, self.get_cell_current().y," Direction:", self.maze.get_direction())
         
 
 
@@ -31,7 +33,8 @@ class GenRandomCorridors(GenRandom):
 
     #-------------------------------------Corridor Loop-------------------------------------#
             
-            print(f'[DEBUG]: Lenght max of the next corridor: {i}')
+            if debug:
+                print(f'[DEBUG]: Lenght max of the next corridor: {i}')
             for iter in range(2, i): 
 
         #-------------------------------------Cell Loop-------------------------------------#   
@@ -47,10 +50,11 @@ class GenRandomCorridors(GenRandom):
                     self.put_wall_back()
                     self.put_wall_onsides()
                     self.put_wall_infront()
-                    self.del_split_node()
+                    self.del_split_node(debug)
 
 
-                print(f'Current Cell: {current_cell}')
+                if debug:
+                    print(f'Current Cell: {current_cell}')
                 cells = {
                     "front": {
                         "cell": self.get_cell_front(current_cell),
@@ -106,13 +110,14 @@ class GenRandomCorridors(GenRandom):
 
         #-------------------------------------1.2 Print Verification-------------------------------------#
                 
-                for key, value in cells.items():
-                    if not isinstance(value, dict):
-                        continue  # ignore les ints
-                    print(key)
-                    for cle,truc in value.items():
-                        print(f'{cle}: {repr(truc)}')
-                print(f'Free neighboors: {cells["free_neightboor"]}')
+                if debug:
+                    for key, value in cells.items():
+                        if not isinstance(value, dict):
+                            continue  # ignore les ints
+                        print(key)
+                        for cle,truc in value.items():
+                            print(f'{cle}: {repr(truc)}')
+                    print(f'Free neighboors: {cells["free_neightboor"]}')
 
                         
                 
@@ -122,7 +127,8 @@ class GenRandomCorridors(GenRandom):
                     if not isinstance(direction, dict):
                         continue  # ignore free neightboor
                     if direction["state_path"]=="looping":
-                        print(f'Cell (to the {key} of current) will create a loop: {direction["cell"]}')
+                        if debug:
+                            print(f'Cell (to the {key} of current) will create a loop: {direction["cell"]}')
                         match key:
                             case "front":
                                 self.put_wall_infront()
@@ -139,19 +145,22 @@ class GenRandomCorridors(GenRandom):
                 del_node=(cells["free_neightboor"]==0)
                 add_node=(cells["free_neightboor"]in [2,3,4]) and end_corridor
                 forward=(cells["free_neightboor"]!=0)
-                print(f'[DEBUG]: End of a corridor: {end_corridor}')
+                if debug:
+                    print(f'[DEBUG]: End of a corridor: {end_corridor}')
                 turn=self.update_turn(end_corridor, cells)
 
-                print(f'[DEBUG]: Next move: {"no" if not forward else f"turn {turn}"}')
+                if debug:
+                    print(f'[DEBUG]: Next move: {"no" if not forward else f"turn {turn}"}')
 
         #-------------------------------------3.1 Updating the split nodes-------------------------------------#
                 
                 if del_node:
-                    self.del_split_node()
+                    self.del_split_node(debug)
                 if add_node:
-                    self.add_split_node()
+                    self.add_split_node(debug)
 
-                print(f'[DEBUG]: List of split node: {", ".join(map(str, self.split_nodes))}')
+                if debug:
+                    print(f'[DEBUG]: List of split node: {", ".join(map(str, self.split_nodes))}')
 
         #-------------------------------------3.2 Placing walls if necessary-------------------------------------#
 
@@ -180,7 +189,8 @@ class GenRandomCorridors(GenRandom):
 
 
                 if self.is_fully_generated():
-                    print(f'[DEBUG]: Maze generation finished')
+                    if debug:
+                        print(f'[DEBUG]: Maze generation finished')
                     finished = True
                     end_corridor = True
 
@@ -199,6 +209,8 @@ class GenRandomCorridors(GenRandom):
 #-------------------------------------4.1 Polishing the maze after generating-------------------------------------#
 
         self.maze.polishing_maze_wall()
+        self.reset_visited()
+        self.set_current(self.get_origin().x,self.get_origin().y)
 
                 # if not end_corridor and cells["front"]["state_path"]=="valid": 
                 #     if cells["free_neightboor"] == 0:

@@ -3,8 +3,13 @@ import pygame
 
 from generation.GenRandomDefault import GenRandomDefault
 from generation.GenRandomCorridors import GenRandomCorridors
+import globals 
+
 
 class Button:
+
+    global new_generation
+
     def __init__(self, rect, label, action=lambda: None):
         self.rect = pygame.Rect(rect)
         self.label = label
@@ -26,22 +31,19 @@ class Button:
             if self.rect.collidepoint(event.pos) and self.action:
                 self.action(maze)
 
-def action_generate(maze):        
-    # determine size from existing maze or fall back to defaults
-    generator = GenRandomDefault(maze)
-    try:
-        generator.generate_default()
-    except Exception:
-        raise RuntimeError("An error occurred during maze generation")   
+def action_generate_default(maze):    
+    print(f"Action generate default called") 
+    globals.new_generation = GenRandomDefault(maze).generate_default(debug=False)  
     print("Generated new random maze")
 
+def action_generatecorridors(maze):
+    print(f"Action generate corridors called")
+    globals.new_generation = GenRandomCorridors(maze).generate_corridors(debug=False)
+    print("Corridor generator created")
+
 def action_generatecorridors_DEBUG(maze):
-    generator = GenRandomCorridors(maze)
-    try:
-        generator.generate_corridors(debug=True)
-    except Exception:
-        raise RuntimeError("An error occurred during corridor generation")
-    print("Generating new random corridors maze")
+    globals.new_generation = GenRandomCorridors(maze).generate_corridors(debug=True)
+    print("Corridor generator created (DEBUG)")
 
 def action_solve_bfs(maze):
     print("Solve BFS (not implemented yet)")

@@ -7,7 +7,7 @@ Designed to work with generation.depth_first.generate and algorithmes.bfs.bfs wh
 """
 
 import pygame
-from interface.Button import Button, action_generate, action_solve_bfs, action_solve_dfs, action_clear, action_quit
+from interface.Button import Button, action_generate_default, action_solve_bfs, action_solve_dfs, action_clear, action_quit, action_generatecorridors, action_generatecorridors_DEBUG
 from interface.Param import Param
 
 
@@ -64,7 +64,9 @@ def create_buttons():
     # Simplified action_generate: only regenerate maze, no path/start/goal handling
     
 
-    btns.append(Button((bx, by, bw, bh), "Generate Maze", action_generate)); by += bh+gap
+    btns.append(Button((bx, by, bw, bh), "Generate random Maze", action_generate_default)); by += bh+gap
+    btns.append(Button((bx, by, bw, bh), "Generate Smart Maze", action_generatecorridors)); by += bh+gap
+    btns.append(Button((bx, by, bw, bh), "Generate Smart Maze [DEBUG]", action_generatecorridors_DEBUG)); by += bh+gap
     btns.append(Button((bx, by, bw, bh), "Solve BFS", action_solve_bfs)); by += bh+gap
     btns.append(Button((bx, by, bw, bh), "Solve DFS", action_solve_dfs)); by += bh+gap
     btns.append(Button((bx, by, bw, bh), "Clear Path", action_clear)); by += bh+gap

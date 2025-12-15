@@ -5,7 +5,6 @@ from generation.Cell import Cell
 class GenRandom:
     def __init__(self, maze):
         self.maze = maze
-        self.maze.set_current(1, 1)
         self.split_nodes = []
 
 #-------------------------------------Get données membres-------------------------------------#
@@ -99,24 +98,29 @@ class GenRandom:
                 raise ValueError(f'The state_path couldn\'t be deternemined: state_cell({value["state_cell"]}), state_neighboor({value["state_neightboor"]}), is_adj_wife_visited({value["is_adj_wife_visited"]})')
         return loc_cells
     
-    def update_turn(self, end_corridor, loc_cells):
+    def update_turn(self, end_corridor, loc_cells, debug=False):
         if end_corridor:
-            return self.choose_direction_end_corridor(loc_cells)
+            return self.choose_direction_end_corridor(loc_cells, debug)
         else:
-            return self.choose_direction_corridor(loc_cells)
+            return self.choose_direction_corridor(loc_cells, debug)
     
 #-------------------------------------Turn functions-------------------------------------#
     
-    def choose_direction_corridor(self, loc_cells):
-        print(f'[DEBUG]: Choosing next turn (not end of corridor)')
+    def choose_direction_corridor(self, loc_cells, debug=False):
+        if debug:
+            print(f'[DEBUG]: Choosing next turn (not end of corridor)')
         front_free=loc_cells["front"]["state_path"]=="valid"
-        print(f'[DEBUG]: Front cell: {"valid" if front_free else "invalid"}')
+        if debug:
+            print(f'[DEBUG]: Front cell: {"valid" if front_free else "invalid"}')
         right_free=loc_cells["right"]["state_path"]=="valid"
-        print(f'[DEBUG]: Right cell: {"valid" if right_free else "invalid"}')
+        if debug:
+            print(f'[DEBUG]: Right cell: {"valid" if right_free else "invalid"}')
         back_free=loc_cells["back"]["state_path"]=="valid"
-        print(f'[DEBUG]: Back cell: {"valid" if back_free else "invalid"}')
+        if debug:
+            print(f'[DEBUG]: Back cell: {"valid" if back_free else "invalid"}')
         left_free=loc_cells["left"]["state_path"]=="valid"
-        print(f'[DEBUG]: Left cell: {"valid" if left_free else "invalid"}')
+        if debug:
+            print(f'[DEBUG]: Left cell: {"valid" if left_free else "invalid"}')
         if front_free:
             return 0
         elif not back_free and not left_free and not right_free: # 000
@@ -136,16 +140,21 @@ class GenRandom:
         elif back_free and left_free and right_free: # 111
             return random.choice([1,2,3])
             
-    def choose_direction_end_corridor(self, loc_cells):
-        print(f'[DEBUG]: Choosing next turn (not end of corridor)')
+    def choose_direction_end_corridor(self, loc_cells, debug=False):
+        if debug:
+            print(f'[DEBUG]: Choosing next turn (not end of corridor)')
         front_free=loc_cells["front"]["state_path"]=="valid"
-        print(f'[DEBUG]: Front cell: {"valid" if front_free else "invalid"}')
+        if debug:
+            print(f'[DEBUG]: Front cell: {"valid" if front_free else "invalid"}')
         right_free=loc_cells["right"]["state_path"]=="valid"
-        print(f'[DEBUG]: Right cell: {"valid" if right_free else "invalid"}')
+        if debug:
+            print(f'[DEBUG]: Right cell: {"valid" if right_free else "invalid"}')
         back_free=loc_cells["back"]["state_path"]=="valid"
-        print(f'[DEBUG]: Back cell: {"valid" if back_free else "invalid"}')
+        if debug:
+            print(f'[DEBUG]: Back cell: {"valid" if back_free else "invalid"}')
         left_free=loc_cells["left"]["state_path"]=="valid"
-        print(f'[DEBUG]: Left cell: {"valid" if left_free else "invalid"}')
+        if debug:
+            print(f'[DEBUG]: Left cell: {"valid" if left_free else "invalid"}')
 
         if not back_free and not front_free and not right_free and not left_free: # 0000
             return -1
@@ -185,20 +194,22 @@ class GenRandom:
     def split_nodes_empty(self) -> bool:
         return len(self.split_nodes) == 0
     
-    def add_split_node(self):
+    def add_split_node(self, debug=False):
         cell_to_add=self.get_cell_current()
         for i, cell in enumerate(self.split_nodes):
             if cell.x == cell_to_add.x and cell.y == cell_to_add.y:
-                print(f"Cannot add a cell that is already a in split_nodes: ({cell_to_add.x}, {cell_to_add.y})")
+                if debug:
+                    print(f"Cannot add a cell that is already a in split_nodes: ({cell_to_add.x}, {cell_to_add.y})")
                 return
         self.split_nodes.append(self.get_cell_current())
     
-    def del_split_node(self) -> Cell:
+    def del_split_node(self, debug=False) -> Cell:
         cell_to_del = self.get_cell_current()
         for i, cell in enumerate(self.split_nodes):
             if cell.x == cell_to_del.x and cell.y == cell_to_del.y:
                 return self.split_nodes.pop(i)
-        print(f"No matching split node found ({cell_to_del.x}, {cell_to_del.y})")
+        if debug:
+            print(f"No matching split node found ({cell_to_del.x}, {cell_to_del.y})")
 
     def is_current_in_split_node(self) -> bool:
         cell_to_find = self.get_cell_current()
@@ -326,6 +337,9 @@ class GenRandom:
         if self.split_nodes_empty() and self.maze.get_finish().is_visited():
             return True
         return False
+    
+    def reset_visited(self):
+        self.maze.reset_visited()
 
     def __del__(self):
         del self.maze
