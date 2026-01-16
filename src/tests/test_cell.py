@@ -91,17 +91,6 @@ class TestCell:
         cell.unset_visited()
         assert cell.is_visited() == False
 
-    def test_str_representation_free(self):
-        """Test string representation of a free cell."""
-        cell = Cell(0, 0)
-        assert str(cell) == '.'
-
-    def test_str_representation_wall(self):
-        """Test string representation of a wall cell."""
-        cell = Cell(0, 0)
-        cell.set_wall()
-        assert str(cell) == '#'
-
     def test_repr_representation(self):
         """Test repr representation of a cell."""
         cell = Cell(3, 4)

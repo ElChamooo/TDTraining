@@ -83,7 +83,7 @@ def main(debug=False):
 #-------------------------------------4. Actions-------------------------------------#
 
         if generating:
-            for _ in range(10):  # Step 10 times per frame for faster generation
+            for _ in range(5):  # Step 5 times per frame for faster generation
                 try:
                     next(generation)
                 except StopIteration:

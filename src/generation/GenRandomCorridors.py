@@ -212,6 +212,9 @@ class GenRandomCorridors(GenRandom):
         self.reset_visited()
         self.set_current(self.get_origin().x,self.get_origin().y)
 
+
+        
+
                 # if not end_corridor and cells["front"]["state_path"]=="valid": 
                 #     if cells["free_neightboor"] == 0:
                 #         # If deadend, to delete from split list
