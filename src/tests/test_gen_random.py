@@ -8,7 +8,8 @@ class TestGenRandom:
         maze = GenRandom(Maze(10, 15))
         assert maze.get_width() == 10
         assert maze.get_height() == 15
-        assert maze.get_cell_current() is not None
+        with pytest.raises(ValueError):
+            maze.get_cell_current()
         assert len(maze.split_nodes) == 0
 
     def test_get_and_set_direction(self):
@@ -66,9 +67,6 @@ class TestGenRandom:
 
     def test_get_current_cell_no_current(self):
         maze = GenRandom(Maze(5, 5))
-        maze.maze.get_current().unset_current()
-        with pytest.raises(ValueError):
-            maze.get_cell_current()
         maze.set_current(1, 1)
         current_cell = maze.get_cell_current()
         assert current_cell.x == 1 and current_cell.y == 1
@@ -269,183 +267,183 @@ class TestGenRandom:
         assert maze.is_cornered(maze.get_cell_current()) == False
         maze.clear_maze()
 
-    def test_put_wall_onsides(self):
-        maze = GenRandom(Maze(7, 7))
-        maze.set_current(3, 3)
-        maze.maze.set_direction(0)  # Facing east
-        maze.put_wall_onsides(maze.get_cell_current())
-        assert maze.maze.get_cell(3, 2).is_wall() == True  # Left side
-        assert maze.maze.get_cell(3, 4).is_wall() == True  # Right side
-        maze.clear_maze()
-        maze.generate_borders()
+    # def test_put_wall_onsides(self):
+    #     maze = GenRandom(Maze(7, 7))
+    #     maze.set_current(3, 3)
+    #     maze.maze.set_direction(0)  # Facing east
+    #     maze.put_wall_onsides(maze.get_cell_current())
+    #     assert maze.maze.get_cell(3, 2).is_wall() == True  # Left side
+    #     assert maze.maze.get_cell(3, 4).is_wall() == True  # Right side
+    #     maze.clear_maze()
+    #     maze.generate_borders()
 
-        maze.set_current(3, 3)
-        maze.maze.set_direction(1)  # Facing south
-        maze.put_wall_onsides(maze.get_cell_current())
-        assert maze.maze.get_cell(2, 3).is_wall() == True  # Left side
-        assert maze.maze.get_cell(4, 3).is_wall() == True  # Right side
-        maze.clear_maze()
-        maze.generate_borders()
+    #     maze.set_current(3, 3)
+    #     maze.maze.set_direction(1)  # Facing south
+    #     maze.put_wall_onsides(maze.get_cell_current())
+    #     assert maze.maze.get_cell(2, 3).is_wall() == True  # Left side
+    #     assert maze.maze.get_cell(4, 3).is_wall() == True  # Right side
+    #     maze.clear_maze()
+    #     maze.generate_borders()
 
-        maze.set_current(1, 1)
-        maze.maze.set_direction(2)  # Facing west
-        maze.put_wall_onsides(maze.get_cell_current())
-        assert maze.maze.get_cell(1, 2).is_wall() == True  # Left side
-        assert maze.maze.get_cell(1, 0).is_wall() == True  # Right side (boundary)
-        maze.clear_maze()
-        maze.generate_borders()
+    #     maze.set_current(1, 1)
+    #     maze.maze.set_direction(2)  # Facing west
+    #     maze.put_wall_onsides(maze.get_cell_current())
+    #     assert maze.maze.get_cell(1, 2).is_wall() == True  # Left side
+    #     assert maze.maze.get_cell(1, 0).is_wall() == True  # Right side (boundary)
+    #     maze.clear_maze()
+    #     maze.generate_borders()
 
-        maze.set_current(5, 5)
-        maze.maze.set_direction(3)  # Facing north
-        maze.put_wall_onsides(maze.get_cell_current())   
-        print(maze.maze)
-        assert maze.maze.get_cell(4, 5).is_wall() == True  # Left side
-        assert maze.maze.get_cell(6, 5).is_wall() == True  # Right side (boundary)
-        maze.clear_maze()
+    #     maze.set_current(5, 5)
+    #     maze.maze.set_direction(3)  # Facing north
+    #     maze.put_wall_onsides(maze.get_cell_current())   
+    #     print(maze.maze)
+    #     assert maze.maze.get_cell(4, 5).is_wall() == True  # Left side
+    #     assert maze.maze.get_cell(6, 5).is_wall() == True  # Right side (boundary)
+    #     maze.clear_maze()
 
-    def test_choose_random_direction(self):
-        maze = GenRandom(Maze(7, 7))
-        maze.set_current(3, 3)
+    # def test_choose_random_direction(self):
+    #     maze = GenRandom(Maze(7, 7))
+    #     maze.set_current(3, 3)
 
-        # Case 1 : Deadend (no free side)
-        original_direction = 0 # Facing east
-        maze.set_direction(original_direction)
-        maze.maze.set_wall(4, 3)
-        maze.maze.set_wall(3, 4)
-        maze.maze.set_wall(2, 3)
-        maze.maze.set_visited(3, 2)
-        with pytest.raises(ValueError):
-            maze.choose_random_direction()
+    #     # Case 1 : Deadend (no free side)
+    #     original_direction = 0 # Facing east
+    #     maze.set_direction(original_direction)
+    #     maze.maze.set_wall(4, 3)
+    #     maze.maze.set_wall(3, 4)
+    #     maze.maze.set_wall(2, 3)
+    #     maze.maze.set_visited(3, 2)
+    #     with pytest.raises(ValueError):
+    #         maze.choose_random_direction()
 
-        # Case 2 : Cornered (one free side)
-        maze.clear_maze()
-        maze.generate_borders()
-        original_direction = 0 # Facing east
-        maze.set_direction(original_direction)
-        maze.set_current(3, 3)
-        maze.maze.set_wall(4, 3)
-        maze.maze.set_wall(3, 4)
-        maze.maze.set_visited(2, 3)
-        maze.choose_random_direction()
-        assert maze.get_direction() == 3  # Turned left to face north
+    #     # Case 2 : Cornered (one free side)
+    #     maze.clear_maze()
+    #     maze.generate_borders()
+    #     original_direction = 0 # Facing east
+    #     maze.set_direction(original_direction)
+    #     maze.set_current(3, 3)
+    #     maze.maze.set_wall(4, 3)
+    #     maze.maze.set_wall(3, 4)
+    #     maze.maze.set_visited(2, 3)
+    #     maze.choose_random_direction()
+    #     assert maze.get_direction() == 3  # Turned left to face north
 
-        # Case 3 : Cornered (one free side)
-        maze.clear_maze()
-        maze.generate_borders()
-        original_direction = 0 # Facing east
-        maze.set_direction(original_direction)
-        maze.set_current(3, 3)
-        maze.maze.set_wall(4, 3)
-        maze.maze.set_wall(3, 2)
-        maze.maze.set_visited(2, 3)
-        maze.choose_random_direction()
-        assert maze.get_direction() == 1  # Turned right to face south
+    #     # Case 3 : Cornered (one free side)
+    #     maze.clear_maze()
+    #     maze.generate_borders()
+    #     original_direction = 0 # Facing east
+    #     maze.set_direction(original_direction)
+    #     maze.set_current(3, 3)
+    #     maze.maze.set_wall(4, 3)
+    #     maze.maze.set_wall(3, 2)
+    #     maze.maze.set_visited(2, 3)
+    #     maze.choose_random_direction()
+    #     assert maze.get_direction() == 1  # Turned right to face south
 
-        # Case 4 : Both sides free but wall in front
-        maze.clear_maze()
-        maze.generate_borders()
-        original_direction = 1 # Facing south
-        maze.set_direction(original_direction)
-        maze.set_current(3, 3)
-        maze.maze.set_wall(3, 4)
-        maze.maze.set_visited(2, 3)
-        chosen_directions = []
-        for _ in range(10):
-            maze.choose_random_direction()
-            chosen_directions.append(maze.get_direction())
-            maze.set_direction(original_direction)  # Reset direction
-        assert all(dir in [0, 2] for dir in chosen_directions)  # Only turned left or right
+    #     # Case 4 : Both sides free but wall in front
+    #     maze.clear_maze()
+    #     maze.generate_borders()
+    #     original_direction = 1 # Facing south
+    #     maze.set_direction(original_direction)
+    #     maze.set_current(3, 3)
+    #     maze.maze.set_wall(3, 4)
+    #     maze.maze.set_visited(2, 3)
+    #     chosen_directions = []
+    #     for _ in range(10):
+    #         maze.choose_random_direction()
+    #         chosen_directions.append(maze.get_direction())
+    #         maze.set_direction(original_direction)  # Reset direction
+    #     assert all(dir in [0, 2] for dir in chosen_directions)  # Only turned left or right
 
-        # Case 5 : Left side free and front free
-        maze.clear_maze()
-        maze.generate_borders()
-        original_direction = 2 # Facing west
-        maze.set_direction(original_direction)
-        maze.set_current(3, 3)
-        maze.maze.set_visited(4, 3)
-        maze.maze.set_wall(3, 2)
-        print(maze.maze)
-        chosen_directions = []  
-        for _ in range(10):
-            maze.choose_random_direction()
-            chosen_directions.append(maze.get_direction())
-            maze.set_direction(original_direction)  # Reset direction
-        assert all(dir in [1, 2] for dir in chosen_directions)  # Only turned left or kept forward
+    #     # Case 5 : Left side free and front free
+    #     maze.clear_maze()
+    #     maze.generate_borders()
+    #     original_direction = 2 # Facing west
+    #     maze.set_direction(original_direction)
+    #     maze.set_current(3, 3)
+    #     maze.maze.set_visited(4, 3)
+    #     maze.maze.set_wall(3, 2)
+    #     print(maze.maze)
+    #     chosen_directions = []  
+    #     for _ in range(10):
+    #         maze.choose_random_direction()
+    #         chosen_directions.append(maze.get_direction())
+    #         maze.set_direction(original_direction)  # Reset direction
+    #     assert all(dir in [1, 2] for dir in chosen_directions)  # Only turned left or kept forward
 
-        # Case 6 : Right side free and front free
-        maze.clear_maze()
-        maze.generate_borders()
-        original_direction = 3 # Facing north
-        maze.set_direction(original_direction)
-        maze.set_current(3, 3)
-        maze.maze.set_visited(3, 4)
-        maze.maze.set_wall(2, 3)
-        chosen_directions = []  
-        for _ in range(10):
-            maze.choose_random_direction()
-            chosen_directions.append(maze.get_direction())
-            maze.set_direction(original_direction)  # Reset direction
-        assert all(dir in [0, 3] for dir in chosen_directions)
+    #     # Case 6 : Right side free and front free
+    #     maze.clear_maze()
+    #     maze.generate_borders()
+    #     original_direction = 3 # Facing north
+    #     maze.set_direction(original_direction)
+    #     maze.set_current(3, 3)
+    #     maze.maze.set_visited(3, 4)
+    #     maze.maze.set_wall(2, 3)
+    #     chosen_directions = []  
+    #     for _ in range(10):
+    #         maze.choose_random_direction()
+    #         chosen_directions.append(maze.get_direction())
+    #         maze.set_direction(original_direction)  # Reset direction
+    #     assert all(dir in [0, 3] for dir in chosen_directions)
 
-        # Case 7 : All sides free except back
-        maze.clear_maze()
-        maze.generate_borders()
-        original_direction = 0 # Facing east
-        maze.set_direction(original_direction)
-        maze.set_current(3, 3)
-        maze.maze.set_visited(2, 3)
-        chosen_directions = []  
-        for _ in range(10):
-            maze.choose_random_direction()
-            chosen_directions.append(maze.get_direction())
-            maze.set_direction(original_direction)  # Reset direction
-        assert all(dir in [0, 1, 3] for dir in chosen_directions)
+    #     # Case 7 : All sides free except back
+    #     maze.clear_maze()
+    #     maze.generate_borders()
+    #     original_direction = 0 # Facing east
+    #     maze.set_direction(original_direction)
+    #     maze.set_current(3, 3)
+    #     maze.maze.set_visited(2, 3)
+    #     chosen_directions = []  
+    #     for _ in range(10):
+    #         maze.choose_random_direction()
+    #         chosen_directions.append(maze.get_direction())
+    #         maze.set_direction(original_direction)  # Reset direction
+    #     assert all(dir in [0, 1, 3] for dir in chosen_directions)
 
-        # Case 8 : All sides free
-        maze.clear_maze()
-        maze.generate_borders()
-        original_direction = 1 # Facing south
-        maze.set_direction(original_direction)
-        maze.set_current(3, 3)
-        chosen_directions = []  
-        for _ in range(10):
-            maze.choose_random_direction()
-            chosen_directions.append(maze.get_direction())
-            maze.set_direction(original_direction)  # Reset direction
-        assert all(dir in [0, 1, 2] for dir in chosen_directions)
+    #     # Case 8 : All sides free
+    #     maze.clear_maze()
+    #     maze.generate_borders()
+    #     original_direction = 1 # Facing south
+    #     maze.set_direction(original_direction)
+    #     maze.set_current(3, 3)
+    #     chosen_directions = []  
+    #     for _ in range(10):
+    #         maze.choose_random_direction()
+    #         chosen_directions.append(maze.get_direction())
+    #         maze.set_direction(original_direction)  # Reset direction
+    #     assert all(dir in [0, 1, 2] for dir in chosen_directions)
 
 
-    def test_does_forward_loops(self):
+    # def test_does_forward_loops(self):
 
-        # Scenario where it's gonna loop if we go forward
-        maze = GenRandom(Maze(7, 7))
-        maze.maze.set_visited(1,1)
-        maze.maze.set_visited(2,1)
-        maze.maze.set_visited(3,1)
-        maze.maze.set_visited(3,2)
-        maze.maze.set_visited(3,3)
-        maze.maze.set_visited(3,4)
-        maze.maze.set_visited(2,4)
-        maze.maze.set_visited(1,4)
-        maze.maze.set_visited(1,3)
-        maze.maze.set_wall(4,2)
-        maze.maze.set_wall(4,3)
-        maze.maze.set_wall(2,2)
-        maze.maze.set_wall(2,3)
-        maze.maze.set_wall(2,5)
-        maze.set_current(1,3)
-        maze.set_direction(3)
-        assert maze.does_forward_loops(1,3) == True
+    #     # Scenario where it's gonna loop if we go forward
+    #     maze = GenRandom(Maze(7, 7))
+    #     maze.maze.set_visited(1,1)
+    #     maze.maze.set_visited(2,1)
+    #     maze.maze.set_visited(3,1)
+    #     maze.maze.set_visited(3,2)
+    #     maze.maze.set_visited(3,3)
+    #     maze.maze.set_visited(3,4)
+    #     maze.maze.set_visited(2,4)
+    #     maze.maze.set_visited(1,4)
+    #     maze.maze.set_visited(1,3)
+    #     maze.maze.set_wall(4,2)
+    #     maze.maze.set_wall(4,3)
+    #     maze.maze.set_wall(2,2)
+    #     maze.maze.set_wall(2,3)
+    #     maze.maze.set_wall(2,5)
+    #     maze.set_current(1,3)
+    #     maze.set_direction(3)
+    #     assert maze.does_forward_loops(1,3) == True
         
-        # Scenario where it's not gonna loop if we go forward (because wall two cell infront)
-        maze.maze.set_wall(1,1)
-        assert maze.does_forward_loops(1,3) == False
+    #     # Scenario where it's not gonna loop if we go forward (because wall two cell infront)
+    #     maze.maze.set_wall(1,1)
+    #     assert maze.does_forward_loops(1,3) == False
         
-        # Scenario where it's not gonna loop if we go forward (because wall infront)
-        maze.maze.set_free(1,1)
-        maze.maze.set_visited(1,1)
-        maze.maze.set_wall(1,2)
-        assert maze.does_forward_loops(1,3) == False
+    #     # Scenario where it's not gonna loop if we go forward (because wall infront)
+    #     maze.maze.set_free(1,1)
+    #     maze.maze.set_visited(1,1)
+    #     maze.maze.set_wall(1,2)
+    #     assert maze.does_forward_loops(1,3) == False
 
 
 

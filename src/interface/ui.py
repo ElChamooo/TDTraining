@@ -67,9 +67,9 @@ def create_buttons():
     btns.append(Button((bx, by, bw, bh), "Generate random Maze", action_generate_default)); by += bh+gap
     btns.append(Button((bx, by, bw, bh), "Generate Smart Maze", action_generatecorridors)); by += bh+gap
     btns.append(Button((bx, by, bw, bh), "Generate Smart Maze [DEBUG]", action_generatecorridors_DEBUG)); by += bh+gap
-    btns.append(Button((bx, by, bw, bh), "Solve BFS", action_solve_bfs)); by += bh+gap
-    btns.append(Button((bx, by, bw, bh), "Solve DFS", action_solve_dfs)); by += bh+gap
-    btns.append(Button((bx, by, bw, bh), "Clear Path", action_clear)); by += bh+gap
+    btns.append(Button((bx, by, bw, bh), "[WIP] Solve BFS", action_solve_bfs)); by += bh+gap
+    btns.append(Button((bx, by, bw, bh), "[WIP] Solve DFS", action_solve_dfs)); by += bh+gap
+    btns.append(Button((bx, by, bw, bh), "[WIP] Clear Path", action_clear)); by += bh+gap
     btns.append(Button((bx, by, bw, bh), "Quit", action_quit)); by += bh+gap
     return btns
 

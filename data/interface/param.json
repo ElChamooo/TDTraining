@@ -2,6 +2,8 @@
     "NAV_H": 52,
     "WIDTH": 960,
     "HEIGHT": 640,
+    "VIRTUAL_WIDTH": 1280,
+    "VIRTUAL_HEIGHT": 720,
     "CONTROL_W": 240,
     "WIDTH_DEBUG": 120,
     "HEIGHT_DEBUG": 120

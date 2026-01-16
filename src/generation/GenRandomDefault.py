@@ -22,3 +22,10 @@ class GenRandomDefault(GenRandom):
                     self.maze.set_free(x, y)
                     action = "Dont put a wall"
                 yield action
+        self.maze.set_free(self.get_origin().x+1, self.get_origin().y)
+        self.maze.set_free(self.get_origin().x, self.get_origin().y+1)
+        self.maze.set_free(self.get_origin().x+1, self.get_origin().y+1)
+        self.maze.set_free(self.get_finish().x-1, self.get_finish().y)
+        self.maze.set_free(self.get_finish().x, self.get_finish().y-1)
+        self.maze.set_free(self.get_finish().x-1, self.get_finish().y-1)
+        
